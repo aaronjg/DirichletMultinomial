@@ -162,9 +162,14 @@ static void neg_log_derive_evidence_lambda_pi(const gsl_vector *ptLambda,
         adAlpha[j] = exp(gsl_vector_get(ptLambda, j));
         dStore += adAlpha[j];
         adDeriv[j] = dWeight* gsl_sf_psi(adAlpha[j]);
+        double alphaS0 = gsl_sf_psi(adAlpha[j]);
         for (i = 0; i < N; i++) {
-            double dAlphaN = adAlpha[j] + aanX[j * N + i];
-            adDeriv[j] -= adPi[i]*gsl_sf_psi (dAlphaN);
+            int dN = aanX[j * N + i];
+            double dAlphaN = adAlpha[j] + dN;
+
+            double psiAlphaN = dN ? gsl_sf_psi(dAlphaN) : alphaS0;            
+            adDeriv[j] -= adPi[i]*psiAlphaN;
+            //            adDeriv[j] -= adPi[i]*gsl_sf_psi (dAlphaN);
             adStore[i] += dAlphaN;
         }
     }
