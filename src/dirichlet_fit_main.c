@@ -26,27 +26,25 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
         *aanX = data->aanX;
     int i, j, k, iter = 0;
 
-    double **aadY, *adMu;
+    double *aadY, *adMu;
     double dMaxChange = BIG_DBL;
 
     if (data->verbose)
         Rprintf("  Soft kmeans\n");
 
-    aadY = (double **) calloc(N, sizeof(double *));
-    aadY[0] = (double *) calloc(N * S, sizeof(double));
+    aadY = (double *) calloc(N *S, sizeof(double));
 
     adMu = (double *) calloc(S, sizeof(double));
 
     for (i = 0; i < N; i++) {
         double dTotal = 0.0;
-        aadY[i] = aadY[0] + i * S;
         for (j = 0; j < S; j++)
             dTotal += aanX[j * N + i];
         for (j = 0; j < S; j++)
-            aadY[i][j] = (aanX[j * N + i]) / dTotal;
+            aadY[j*N+i] = (aanX[j * N + i]) / dTotal;
     }
 
-    /* initialse */
+    /* initialise */
     for (i = 0; i < N; i++) {
         k = gsl_rng_uniform_int (ptGSLRNG, K);
         for (j = 0; j < K; j++)
@@ -65,7 +63,7 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
             for (j = 0; j < S; j++) {
                 adMu[j] = 0.0;
                 for (k = 0; k < N; k++)
-                    adMu[j] += aadZ[i][k]*aadY[k][j];
+                    adMu[j] += aadZ[i][k]*aadY[j*N+k];
             }
 
             for (j = 0; j < S; j++) {
@@ -86,7 +84,7 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
             for (k = 0; k < K; k++) {
                 adDist[k] = 0.0;
                 for (j = 0; j < S; j++) {
-                    double dDiff = (aadMu[k][j] - aadY[i][j]);
+                    const double dDiff = (aadMu[k][j] - aadY[j*N+i]);
                     adDist[k] += dDiff * dDiff;
                 }
                 adDist[k] = sqrt(adDist[k]);
@@ -96,11 +94,11 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
                 aadZ[k][i] = exp(-SOFT_BETA * adDist[k]) / dNorm;
         }
         iter++;
-        if (data->verbose && (iter % 50 == 0))
+        if (data->verbose && (iter % 10 == 0))
             Rprintf("    iteration %d change %f\n", iter, dMaxChange);
     }
 
-    free(aadY[0]); free(aadY);
+    free(aadY);
     free(adMu);
 }
 
