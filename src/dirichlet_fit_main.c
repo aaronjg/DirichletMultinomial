@@ -309,14 +309,19 @@ static double neg_log_likelihood(double *adW, double** aadLambda,
     double dRet = 0.0, dL5 = 0.0, dL6 = 0.0, dL7 = 0.0, dL8 = 0.0;
     double dK = K, dN = N, dS = S;
 
+    double *aadLngammaLambda0 = (double*)calloc(S*K,sizeof(double));
+
     for (k = 0; k < K; k++){
         double dSumAlphaK = 0.0;
         adLogBAlpha[k] = 0.0;
         adPi[k] = adW[k]/dN;
         for (j = 0; j < S; j++){
             double dAlpha = exp(aadLambda[k][j]);
+            double lngammaAlpha = gsl_sf_lngamma(dAlpha);
+            aadLngammaLambda0[k*S +j] = lngammaAlpha;
+
             dSumAlphaK += dAlpha;
-            adLogBAlpha[k] += gsl_sf_lngamma(dAlpha);
+            adLogBAlpha[k] += lngammaAlpha;
         }
         adLogBAlpha[k] -= gsl_sf_lngamma(dSumAlphaK);
     }
@@ -334,9 +339,10 @@ static double neg_log_likelihood(double *adW, double** aadLambda,
         for (k = 0; k < K; k++) {
             double dSumAlphaKN = 0.0, dLogBAlphaN = 0.0;
             for (j = 0; j < S; j++) {
-                double dAlphaN = exp(aadLambda[k][j]) + aanX[j * N + i];
+                int countN = aanX[j * N + i];
+                double dAlphaN = exp(aadLambda[k][j]) + countN;
                 dSumAlphaKN += dAlphaN;
-                dLogBAlphaN += gsl_sf_lngamma(dAlphaN);
+                dLogBAlphaN += countN ? gsl_sf_lngamma(dAlphaN) : aadLngammaLambda0[k*S + j];
             }
             dLogBAlphaN -= gsl_sf_lngamma(dSumAlphaKN);
             adLogStore[k] = dLogBAlphaN - adLogBAlpha[k] - dFactor;
