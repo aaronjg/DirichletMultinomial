@@ -123,11 +123,13 @@ static double neg_log_evidence_lambda_pi(const gsl_vector *lambda,
         dLogEAlpha += gsl_sf_lngamma(dAlpha);
         dSumLambda += dLambda;
         dSumAlpha += dAlpha;
+        const double lngammaAlpha0 = gsl_sf_lngamma(dAlpha);
         for (i = 0; i < N; i++) {
             const double dN = aanX[j * N + i];
             const double dAlphaN = dAlpha + dN;
+            const double lngammaAlphaN = dN ? gsl_sf_lngamma(dAlphaN) : lngammaAlpha0;
             adSumAlphaN[i] += dAlphaN; /*weight by pi*/
-            dLogE -= adPi[i] * gsl_sf_lngamma(dAlphaN); /*weight by pi*/
+            dLogE -= adPi[i] * lngammaAlphaN; /*weight by pi*/
         }
     }
     dLogEAlpha -= gsl_sf_lngamma(dSumAlpha);
