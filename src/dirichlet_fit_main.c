@@ -507,7 +507,7 @@ void dirichlet_fit_main(struct data_t *data, int rseed)
         dNLL = dNew;
         iter++;
         R_CheckUserInterrupt();
-        if (data->verbose && (iter % 10) == 0)
+        if (data->verbose && (iter % 1) == 0)
             Rprintf("    iteration %d change %f\n", iter, dChange);
     }
 
