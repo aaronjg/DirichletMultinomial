@@ -366,11 +366,14 @@ static void hessian(gsl_matrix* ptHessian, const double* adLambda,
         adAlpha[j] = exp(adLambda[j]);
         dAlphaSum += adAlpha[j];
         adAJK0[j] = adAJK[j] = adCJK0[j] = adCJK[j] = 0.0;
+        const double dPsiAlpha = gsl_sf_psi(adAlpha[j]);
+        const double dPsi1Alpha = gsl_sf_psi_1(adAlpha[j]);
         for (i = 0; i < N; i++) {
-            adCJK0[j] += adPi[i] * gsl_sf_psi(adAlpha[j] + aanX[j * N + i]);
-            adAJK0[j] += adPi[i] * gsl_sf_psi(adAlpha[j]);
-            adCJK[j] += adPi[i] * gsl_sf_psi_1(adAlpha[j] + aanX[j * N + i]);
-            adAJK[j] += adPi[i] * gsl_sf_psi_1(adAlpha[j]);
+            const int n = aanX[j * N + i];
+            adCJK0[j] += adPi[i] * n ? gsl_sf_psi(adAlpha[j] + n) : dPsiAlpha;
+            adAJK0[j] += adPi[i] * dPsiAlpha;
+            adCJK[j] += adPi[i] * n ? gsl_sf_psi_1(adAlpha[j] + n): dPsi1Alpha;
+            adAJK[j] += adPi[i] * dPsi1Alpha;
         }
     }
 
