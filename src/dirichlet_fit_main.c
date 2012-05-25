@@ -239,7 +239,8 @@ static void optimise_lambda_k(double *adLambdaK, struct data_t *data,
 }
 
 static double neg_log_evidence_i(const struct data_t *data,
-                                 const int *anX, const double* adLambda)
+                                 const int *anX, const double* adLambda,
+                                 const double* aadLnGammaLambda0)
 {
     int j;
     const int S = data->S, N = data->N;
@@ -247,13 +248,14 @@ static double neg_log_evidence_i(const struct data_t *data,
         dSumAlphaN = 0.0;
 
     for (j = 0; j < S; j++) {
+        const double n = anX[j * N];
         const double dAlpha = exp(adLambda[j]);
-        const double dAlphaN = anX[j * N] + dAlpha;
-
-        dLogEAlpha += gsl_sf_lngamma(dAlpha);
+        const double dAlphaN = n + dAlpha;
+        
+        dLogEAlpha += aadLnGammaLambda0[j];
         dSumAlpha += dAlpha;
         dSumAlphaN += dAlphaN;
-        dLogE -= gsl_sf_lngamma(dAlphaN);
+        dLogE -= n ? gsl_sf_lngamma(dAlphaN) : aadLnGammaLambda0[j] ;
     }
 
     dLogEAlpha -= gsl_sf_lngamma(dSumAlpha);
@@ -265,16 +267,25 @@ static double neg_log_evidence_i(const struct data_t *data,
 static void calc_z(double **aadZ, const struct data_t *data,
                    const double *adW, double **aadLambda)
 {
-    int i, k;
-    const int N = data->N, K = data->K;
+    int i, k,j;
+    const int N = data->N, K = data->K, S = data->S;
     double adStore[K];
+    double *aadLngammaLambda0 = (double*)calloc(S*K,sizeof(double));
+
+    for(k = 0; k<K; k++){
+      for(j = 0; j<S; j++){
+        const double dAlpha = exp(aadLambda[k][j]);
+        aadLngammaLambda0[k*S +j] = gsl_sf_lngamma(dAlpha);
+      }
+    }
 
     for (i = 0; i < N; i ++) {
         double dSum = 0.0;
         double dOffset = BIG_DBL;
         for (k = 0; k < K; k++) {
             double dNegLogEviI =
-                neg_log_evidence_i(data, data->aanX + i, aadLambda[k]);
+              neg_log_evidence_i(data, data->aanX + i, aadLambda[k],
+                                 aadLngammaLambda0 + k*S);
             if (dNegLogEviI < dOffset)
                 dOffset = dNegLogEviI;
             adStore[k] = dNegLogEviI;
