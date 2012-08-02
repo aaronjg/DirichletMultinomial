@@ -11,13 +11,13 @@ setClass("DMN",
 
 dmn <-
     function(count, k, verbose=FALSE,
-             seed=runif(1, 0, .Machine$integer.max))
+             seed=runif(1, 0, .Machine$integer.max),maxIt=100)
 {
     if (verbose)
         message(sprintf("dmn, k=%d", k))
     mode(count) <- "integer"
     ans <- .Call(.dirichlet_fit, count, as.integer(k),
-                 as.logical(verbose), as.integer(seed))
+                 as.logical(verbose), as.integer(seed),as.integer(maxIt))
     o <- order(ans$Mixture$Weight, decreasing=TRUE)
     ans <- within(ans, {
         Group <- Group[,o, drop=FALSE]
@@ -65,7 +65,7 @@ mixturewt <-
 {
     fit <- object@fit$Estimate
     if (scale)
-        fit <- scale(fit, FALSE, mixturewt(object)$theta)
+        fit <- scale(fit, FALSE, mixturewt(object)@theta)
     fit
 }
 

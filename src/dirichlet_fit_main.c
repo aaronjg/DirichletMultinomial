@@ -458,7 +458,7 @@ static void mixture_output(struct data_t *data, double *adW,
     }
 }
 
-void dirichlet_fit_main(struct data_t *data, int rseed)
+void dirichlet_fit_main(struct data_t *data, int rseed,int maxIt)
 {
     const int N = data->N, S = data->S, K = data->K;
     int i, j, k;
@@ -512,7 +512,7 @@ void dirichlet_fit_main(struct data_t *data, int rseed)
 
     if (data->verbose)
         Rprintf("  Expectation Maximization\n");
-    while (dChange > 1.0e-6 && iter < 100) {
+    while (dChange > 1.0e-6 && iter < maxIt) {
         calc_z(aadZ, data, adW, aadLambda); /* latent var expectation */
         for (k = 0; k < K; k++) /* mixture components, given pi */
             optimise_lambda_k(aadLambda[k], data, aadZ[k]);

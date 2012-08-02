@@ -4,6 +4,6 @@
 #include <Rdefines.h>
 
 SEXP dirichlet_fit(SEXP counts, SEXP n_components, SEXP verbose,
-                   SEXP seed);
+                   SEXP seed,SEXP maxIt);
 
 #endif

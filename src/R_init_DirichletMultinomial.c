@@ -2,7 +2,7 @@
 #include "dirichlet_fit.h"
 
 static const R_CallMethodDef callMethods[] = {
-    { ".dirichlet_fit", (DL_FUNC) &dirichlet_fit, 4},
+    { ".dirichlet_fit", (DL_FUNC) &dirichlet_fit, 5},
     {NULL, NULL, 0}
 };
 

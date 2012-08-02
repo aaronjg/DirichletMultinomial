@@ -16,6 +16,6 @@ struct data_t {
         *fit_lower, *fit_mpe, *fit_upper;
 };
 
-void dirichlet_fit_main(struct data_t *data, int rseed);
+void dirichlet_fit_main(struct data_t *data, int rseed,int maxIt);
 
 #endif

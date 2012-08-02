@@ -2,7 +2,7 @@
 #include "dirichlet_fit.h"
 
 SEXP dirichlet_fit(SEXP counts, SEXP n_components, SEXP verbose,
-                   SEXP seed)
+                   SEXP seed,SEXP maxIt)
 {
     /* counts: N communities x S taxa */
     struct data_t *data =
@@ -77,7 +77,7 @@ SEXP dirichlet_fit(SEXP counts, SEXP n_components, SEXP verbose,
     data->fit_mpe = REAL(VECTOR_ELT(elt, 1));
     data->fit_upper = REAL(VECTOR_ELT(elt, 2));
 
-    dirichlet_fit_main(data, INTEGER(seed)[0]);
+    dirichlet_fit_main(data, INTEGER(seed)[0],INTEGER(maxIt)[0]);
 
     elt = VECTOR_ELT(result , 0);
     REAL(elt)[0] = data->NLE;
