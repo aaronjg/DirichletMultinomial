@@ -144,7 +144,7 @@ head(mixture(best), 3)
 @ 
 %% 
 The \Rfunction{fitted} function describes the contribution of each
-taxonomic group (each point in the panels of Figure~\ref{fig:fitted}
+taxonomic group (each point in the panels of Figure~\ref{fig:fitted})
 to the Dirichlet components; the diagonal nature of the points in a
 panel suggest that the Dirichlet components are correlated, perhaps
 reflecting overall numerical abundance.
