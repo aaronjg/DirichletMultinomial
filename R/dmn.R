@@ -15,6 +15,8 @@ dmn <-
 {
     if (verbose)
         message(sprintf("dmn, k=%d", k))
+    stopifnot(!is.null(rownames(count)))
+    stopifnot(!is.null(colnames(count)))
     mode(count) <- "integer"
     ans <- .Call(.dirichlet_fit, count, as.integer(k),
                  as.logical(verbose), as.integer(seed),as.integer(maxIt))
