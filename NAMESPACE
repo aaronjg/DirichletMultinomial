@@ -1,9 +1,14 @@
 useDynLib(DirichletMultinomial, .registration=TRUE)
 
+importFrom(graphics, axis, image, layout, par)
+importFrom(stats, runif, setNames)
+importFrom(utils, head)
 import(methods)
 importFrom(stats4, AIC, BIC, summary)
-importMethodsFrom(IRanges, length, lapply, Map, names, sapply)
-importClassesFrom(IRanges, SimpleList, List, Vector, Annotated)
+importClassesFrom(S4Vectors, Annotated, Vector)
+importMethodsFrom(IRanges, length, lapply, names)
+importMethodsFrom(BiocGenerics, Map, sapply)
+importClassesFrom(S4Vectors, SimpleList, List)
 
 exportClasses(DMN, DMNGroup)
 export(dmn, dmngroup,

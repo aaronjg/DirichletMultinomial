@@ -10,14 +10,16 @@ setClass("DMNGroup", contains="SimpleList",
 ## dmngroup
 
 dmngroup <-
-    function(count, group, k, ..., simplify=TRUE, .lapply=mclapply)
+    function(count, group, k, ..., simplify=TRUE, .lapply=parallel::mclapply)
 {
     if (length(group) != nrow(count))
         stop("'length(group)' does not equal 'nrow(count)'")
     if (!is.factor(group))
         group <- factor(group)
 
-    counts <- sapply(levels(group), csubset, count, group)
+    lvls <- setNames(nm=levels(group))
+    counts <- lapply(lvls, csubset, count, group)
+
     tasks <- expand.grid(group=names(counts), k=k)
     tid <- seq_len(nrow(tasks))
     ans0 <- .lapply(tid, function(i, tasks, counts, ...) {
@@ -95,7 +97,7 @@ setMethod(predict, "DMNGroup", .predict.DMNGroup)
 }
 
 cvdmngroup <-
-    function(ncv, count, k, z, ..., verbose=FALSE, .lapply=mclapply)
+    function(ncv, count, k, z, ..., verbose=FALSE, .lapply=parallel::mclapply)
 {
     n <- seq_len(nrow(count))
     grp <- split(sample(length(n)), cut(n, ncv))

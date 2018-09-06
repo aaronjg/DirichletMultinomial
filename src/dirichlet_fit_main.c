@@ -32,7 +32,7 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
     if (data->verbose)
         Rprintf("  Soft kmeans\n");
 
-    aadY = (double *) calloc(N *S, sizeof(double));
+    aadY = (double *) calloc(N * S, sizeof(double));
 
     adMu = (double *) calloc(S, sizeof(double));
 
@@ -41,7 +41,7 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
         for (j = 0; j < S; j++)
             dTotal += aanX[j * N + i];
         for (j = 0; j < S; j++)
-            aadY[j*N+i] = (aanX[j * N + i]) / dTotal;
+            aadY[j * N + i] = (aanX[j * N + i]) / dTotal;
     }
 
     /* initialise */
@@ -63,7 +63,7 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
             for (j = 0; j < S; j++) {
                 adMu[j] = 0.0;
                 for (k = 0; k < N; k++)
-                    adMu[j] += aadZ[i][k]*aadY[j*N+k];
+                    adMu[j] += aadZ[i][k] * aadY[j * N + k];
             }
 
             for (j = 0; j < S; j++) {
@@ -84,7 +84,7 @@ static void kmeans(struct data_t *data, gsl_rng *ptGSLRNG,
             for (k = 0; k < K; k++) {
                 adDist[k] = 0.0;
                 for (j = 0; j < S; j++) {
-                    const double dDiff = (aadMu[k][j] - aadY[j*N+i]);
+                    const double dDiff = aadMu[k][j] - aadY[j * N + i];
                     adDist[k] += dDiff * dDiff;
                 }
                 adDist[k] = sqrt(adDist[k]);
@@ -127,7 +127,8 @@ static double neg_log_evidence_lambda_pi(const gsl_vector *lambda,
         for (i = 0; i < N; i++) {
             const double dN = aanX[j * N + i];
             const double dAlphaN = dAlpha + dN;
-            const double lngammaAlphaN = dN ? gsl_sf_lngamma(dAlphaN) : lngammaAlpha0;
+            const double lngammaAlphaN =
+                dN ? gsl_sf_lngamma(dAlphaN) : lngammaAlpha0;
             adSumAlphaN[i] += dAlphaN; /*weight by pi*/
             dLogE -= adPi[i] * lngammaAlphaN; /*weight by pi*/
         }
@@ -170,6 +171,8 @@ static void neg_log_derive_evidence_lambda_pi(const gsl_vector *ptLambda,
             double psiAlphaN = dN ? gsl_sf_psi(dAlphaN) : alphaS0;            
             adDeriv[j] -= adPi[i]*psiAlphaN;
             //            adDeriv[j] -= adPi[i]*gsl_sf_psi (dAlphaN);
+            double psiAlphaN = dN ? gsl_sf_psi(dAlphaN) : alphaS0;
+            adDeriv[j] -= adPi[i] * psiAlphaN;
             adStore[i] += dAlphaN;
         }
     }
@@ -251,7 +254,7 @@ static double neg_log_evidence_i(const struct data_t *data,
         const double n = anX[j * N];
         const double dAlpha = exp(adLambda[j]);
         const double dAlphaN = n + dAlpha;
-        
+
         dLogEAlpha += aadLnGammaLambda0[j];
         dSumAlpha += dAlpha;
         dSumAlphaN += dAlphaN;
@@ -267,16 +270,16 @@ static double neg_log_evidence_i(const struct data_t *data,
 static void calc_z(double **aadZ, const struct data_t *data,
                    const double *adW, double **aadLambda)
 {
-    int i, k,j;
+    int i, k, j;
     const int N = data->N, K = data->K, S = data->S;
     double adStore[K];
     double *aadLngammaLambda0 = (double*)calloc(S*K,sizeof(double));
 
-    for(k = 0; k<K; k++){
-      for(j = 0; j<S; j++){
-        const double dAlpha = exp(aadLambda[k][j]);
-        aadLngammaLambda0[k*S +j] = gsl_sf_lngamma(dAlpha);
-      }
+    for(k = 0; k < K; k++) {
+        for(j = 0; j < S; j++) {
+            const double dAlpha = exp(aadLambda[k][j]);
+            aadLngammaLambda0[k*S +j] = gsl_sf_lngamma(dAlpha);
+        }
     }
 
     for (i = 0; i < N; i ++) {
@@ -284,8 +287,8 @@ static void calc_z(double **aadZ, const struct data_t *data,
         double dOffset = BIG_DBL;
         for (k = 0; k < K; k++) {
             double dNegLogEviI =
-              neg_log_evidence_i(data, data->aanX + i, aadLambda[k],
-                                 aadLngammaLambda0 + k*S);
+                neg_log_evidence_i(data, data->aanX + i, aadLambda[k],
+                                   aadLngammaLambda0 + k*S);
             if (dNegLogEviI < dOffset)
                 dOffset = dNegLogEviI;
             adStore[k] = dNegLogEviI;
@@ -318,7 +321,7 @@ static double neg_log_likelihood(double *adW, double** aadLambda,
         for (j = 0; j < S; j++){
             double dAlpha = exp(aadLambda[k][j]);
             double lngammaAlpha = gsl_sf_lngamma(dAlpha);
-            aadLngammaLambda0[k*S +j] = lngammaAlpha;
+            aadLngammaLambda0[k * S + j] = lngammaAlpha;
 
             dSumAlphaK += dAlpha;
             adLogBAlpha[k] += lngammaAlpha;
@@ -342,7 +345,8 @@ static double neg_log_likelihood(double *adW, double** aadLambda,
                 int countN = aanX[j * N + i];
                 double dAlphaN = exp(aadLambda[k][j]) + countN;
                 dSumAlphaKN += dAlphaN;
-                dLogBAlphaN += countN ? gsl_sf_lngamma(dAlphaN) : aadLngammaLambda0[k*S + j];
+                dLogBAlphaN += countN ? gsl_sf_lngamma(dAlphaN) :
+                    aadLngammaLambda0[k * S + j];
             }
             dLogBAlphaN -= gsl_sf_lngamma(dSumAlphaKN);
             adLogStore[k] = dLogBAlphaN - adLogBAlpha[k] - dFactor;
