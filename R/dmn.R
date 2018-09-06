@@ -17,6 +17,8 @@ dmn <-
         message(sprintf("dmn, k=%d", k))
     if (any(rowSums(count) == 0L))
         stop("some 'rowSums()' on the dmn() count matrix equal 0")
+    stopifnot(!is.null(rownames(count)))
+    stopifnot(!is.null(colnames(count)))
     mode(count) <- "integer"
     ans <- .Call(.dirichlet_fit, count, as.integer(k),
                  as.logical(verbose), as.integer(seed),as.integer(maxIt))
