@@ -69,7 +69,7 @@ mixturewt <-
 {
     fit <- object@fit$Estimate
     if (scale)
-        fit <- scale(fit, FALSE, mixturewt(object)@theta)
+        fit <- scale(fit, FALSE, mixturewt(object)$theta)
     fit
 }
 
